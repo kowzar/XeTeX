@@ -27,4 +27,4 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | apptainer remote login -u ${{ github.actor }} --password-stdin oras://ghcr.io
 
       - name: Push to GHCR
-        run: apptainer push xetex.sif oras://ghcr.io/${{ github.repository_owner }}/latex:latest
+        run: apptainer push xetex.sif oras://ghcr.io/${{ github.repository_owner }}/xetex:latest
