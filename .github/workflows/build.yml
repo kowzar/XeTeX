@@ -1,0 +1,30 @@
+name: Build and push container
+
+on:
+  push:
+    branches: [main]
+    paths: ['xetex.def']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.4
+
+      - name: Build image
+        run: sudo apptainer build xetex.sif xetex.def
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | apptainer remote login -u ${{ github.actor }} --password-stdin oras://ghcr.io
+
+      - name: Push to GHCR
+        run: apptainer push xetex.sif oras://ghcr.io/${{ github.repository_owner }}/latex:latest

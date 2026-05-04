@@ -1,0 +1,199 @@
+BootStrap: docker
+From: debian:trixie
+
+%labels
+  Maintainer DCI Bioinformatics
+  LaTeX 
+  OS Debian 13 (trixie)
+  
+%post
+  export DEBIAN_FRONTEND=noninteractive
+
+  echo "deb http://httpredir.debian.org/debian/ trixie  contrib" > /etc/apt/sources.list.d/contrib.list
+
+  # Get dependencies
+  apt-get update
+  apt-get -qq install -y --no-install-recommends \
+    apt-utils \
+    ca-certificates \
+    lsb-release \
+    locales \
+    tzdata \
+    default-jdk \
+    default-jre \
+    python3-venv \
+    libpython3.13
+
+
+  apt-get -qq install -y --no-install-recommends tzdata apt-utils
+  ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+  dpkg-reconfigure --frontend noninteractive  tzdata
+
+  # Configure default locale
+  echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+  locale-gen en_US.utf8
+  /usr/sbin/update-locale LANG=en_US.UTF-8
+  export LC_ALL=en_US.UTF-8
+  export LANG=en_US.UTF-8
+  export TZ=UTC
+
+  export quarto_ver=1.8.27
+
+  apt-get -qq install -y --no-install-recommends \
+    a2ps \
+    auctex \
+    biber \
+    build-essential \
+    circos \
+    circos-tools \
+    dot2tex \
+    dvipng \
+    elpa-ess \
+    elpa-flycheck \
+    elpa-markdown-mode \
+    emacs-gtk \
+    enscript \
+    fonts-circos-symbols \
+    fonts-firacode \
+    fonts-noto-mono \
+    fonts-inconsolata \
+    fonts-texgyre \
+    fonts-texgyre-math \
+    ghostscript \
+    gimp \
+    git \
+    git-lfs \
+    imagemagick \
+    inkscape \
+    jabref \
+    kde-spectacle \
+    latex2rtf \
+    latexdiff \
+    latexmk \
+    libfreetype6-dev \
+    make \
+    mercurial \
+    neovim \
+    pandoc \
+	  pandoc-citeproc-preamble \
+    pandoc-data \
+    pandoc-filter-diagram \
+    pdf2svg \
+	  pdftk-java \
+    poppler-utils \
+    qpdf \
+	  texlive-base \
+	  texlive-latex-recommended \
+    texlive-latex-extra \
+	  texlive-xetex \
+	  texlive-luatex \
+    texlive-extra-utils \
+	  texlive-pstricks \
+	  texlive-pictures \
+	  texlive-publishers \
+	  texlive-bibtex-extra \
+    texlive-science \
+	  texlive-extra-utils \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-font-utils \
+    texlive-formats-extra \
+    tidy \
+    ttf-mscorefonts-installer \
+    vim \
+    vim-latexsuite \
+    writer2latex \
+    xpdf
+
+  apt-get -qq install -y --no-install-recommends \
+    r-base-dev \
+    r-cran-base64enc \
+    r-cran-bookdown \
+    r-cran-bibtex \
+    r-cran-bitops \
+    r-cran-cairo \
+    r-cran-circlize \
+    r-cran-cli \
+    r-cran-coin \
+    r-cran-commonmark \
+    r-cran-cowplot \
+    r-cran-digest \
+    r-cran-dplyr \
+    r-cran-formatr \
+    r-cran-fs \
+    r-cran-ggrastr \
+    r-cran-ggrepel \
+    r-cran-ggtext \
+    r-cran-glue \
+    r-cran-htmltools \
+    r-cran-htmlwidgets \
+    r-cran-irkernel \
+    r-cran-jsonlite \
+    r-cran-kableextra \
+    r-cran-knitr \
+    r-cran-lifecycle \
+    r-cran-magick \
+    r-cran-markdown \
+    r-cran-patchwork \
+    r-cran-rmarkdown \
+    r-cran-rsvg \
+    r-cran-sass \
+    r-cran-scales \
+    r-cran-tidyselect \
+    r-cran-tidyverse \
+    r-cran-v8 \
+    r-cran-vctrs \
+    r-cran-withr \
+    r-cran-xfun \
+    r-cran-xml2 \
+    r-cran-svglite \
+    r-cran-pdftools \
+    r-cran-png \
+    r-cran-purrr \
+    r-cran-officer \
+    r-cran-patchwork \
+    r-cran-r.cache \
+    r-cran-rprojroot \
+    r-cran-roxygen2 \
+    r-cran-rcpp \
+    r-cran-rcppeigen \
+    r-cran-usethis \
+    r-cran-microbenchmark \
+    r-cran-survival \
+    r-cran-mass \
+    r-cran-ggrepel \
+    r-cran-reticulate \
+    r-cran-stringi
+ 	
+  Rscript -e "install.packages(c('sysfonts', 'showtextdb', 'showtext'))"
+  Rscript -e "install.packages(c('extrafontdb', 'extrafont', 'Rttf2pt1'))"
+  Rscript -e "extrafont::font_import(prompt = FALSE)"
+  Rscript -e "install.packages(c('tikzDevice', 'filehash','styler'))"
+  Rscript -e "install.packages(c('bigD', 'reactR','reactable'))"
+  Rscript -e "install.packages(c('gt'))"
+  Rscript -e "install.packages(c('cards','cardx'))"
+
+  python3 -m venv venv
+  . venv/bin/activate
+  pip3 install --upgrade pip setuptools 
+  pip3 install pandas numpy seaborn matplotlib sympy plotly jupyterlab jupytext pdfplumber pycirclize
+  deactivate
+
+  wget --progress=dot:giga https://github.com/quarto-dev/quarto-cli/releases/download/v${quarto_ver}/quarto-${quarto_ver}-linux-amd64.deb
+  dpkg --install quarto-${quarto_ver}-linux-amd64.deb
+  rm quarto-${quarto_ver}-linux-amd64.deb
+  
+  # Set paper size to letter (default is A4)
+  paperconfig --paper letter
+    
+  # Clean up
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+
+  unset DEBIAN_FRONTEND
+
+
+
+%test
+  lsb_release -a
+  uname -a
